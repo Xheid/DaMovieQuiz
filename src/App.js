@@ -1,56 +1,71 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
+import React, { useEffect } from 'react';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link,
+  useHistory,
+  useLocation
+} from "react-router-dom";
+import Quiz from './features/quiz/quiz';
+import {update} from './features/quiz/highscoreSlice';
+
 import './App.css';
+import { useDispatch, useSelector } from 'react-redux';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
+    <Router>
+      <div className="App">
+        <Switch>
+          <Route exact path="/">
+            <Start />
+          </Route>
+          <Route path="/quiz">
+            <Quiz />
+          </Route>
+          <Route path="/result">
+            <End />
+          </Route>
+        </Switch>
+      </div>   
+    </Router>
+  );
+}
+
+function Start() {
+  return (
+    <button>
+      <Link to="/quiz">Start </Link>
+    </button>
+  )
+}
+
+function End(){
+
+  const history = useHistory();
+  const location = useLocation();
+  const dispatch = useDispatch();
+
+  const highscore = useSelector((state) => state.highscore.value);
+
+  useEffect(saveScore, [location.state.score, highscore, dispatch]);
+
+  function saveScore () {
+    if (location.state.score > highscore) {
+      dispatch(update(location.state.score))
+    } 
+  };
+
+  function playAgain(){
+    history.push("/");
+  };
+
+  return (
+    <div>
+      <p>Your actual score is : {location.state.score}</p>
+      <p>Do you want to beat your highscore : {highscore}</p>
+      <button onClick={playAgain}>Play again</button>
     </div>
   );
 }
